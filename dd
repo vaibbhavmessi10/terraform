@@ -1,0 +1,89 @@
+# to perform any operation 
+#conditional expresiion
+# if else condition
+#
+Terraform function:
+The terraform language includes a number of built in factors that you can use to terraform and combine values.
+The general syantax for function callls is a function is a function name followed by comma separated arguments in parathesis:
+
+function (arguments1,arguments2)
+Example:
+> max(5,12,9) 12
+
+
+** Terraform Function**  (Search google on terraform function)
+
+The terraform lanaguage doesnot support user-defined functions and so only the functions build into the lanaguage available for use:
+
+Numeric 
+string
+
+
+
+lookup is afunction
+
+lookup(map,key,default)
+
+example:
+lookup({a="ay",b="bee"},"a","what?")
+output >> ay
+
+lookup({a="ay",b="bee"},"c","what?")
+output >> what?
+
+If We want to trouble of terraform plan
+check issue 
+
+export TF_LOG=Trace
+
+then terraform plan
+
+
+to save log of terraform log
+
+export TF_LOG_PATH=/tmp/terraformlog
+
+
+
+-----------------------------
+
+
+
+if want proper format 
+
+terraform fmt
+
+
+if we want check terraform syntax
+
+terraform validate
+
+
+ **
+ terraform Taint >> command
+ 
+ 
+ if create 3 instance
+ terraform apply
+ 
+ 
+ taint approach >> taint use for recrete
+ destroy+ recreate
+ 
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
