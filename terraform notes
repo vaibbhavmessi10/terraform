@@ -1,0 +1,319 @@
+static ip provide karna hai toh
+
+resource "aws_eip" "lb" {
+  #instance = aws_instance.web.id  #if we remove this only elasticip create
+  vpc      = true
+}
+
+resource "aws_eip_association" "eip_assoc" {
+  instance_id   = aws_instance.web.id
+  allocation_id = aws_eip.lb.id
+}
+
+#use for association to ec2
+# also this elastic associate to ec2
+
+
+-----------------------------------------------------------------------------------------------
+
+
+
+**TERRAFORM VARIABLES**
+
+Repeated static values can create more work in future.
+
+
+
+resource "aws_security_group" "sg" {
+  name        = "sg"
+  
+  ingress {
+    from_port        = 443
+    to_port          = 443
+    protocol         = "tcp"
+    cidr_blocks      = ["45.67.89.39/32"]
+    }
+
+  ingress {
+    from_port        = 80
+    to_port          = 80
+    protocol         = "tcp"
+    cidr_blocks      = ["112.50.98.38/32"]
+    }
+
+  ingress {
+    from_port        = 53
+    to_port          = 53
+    protocol         = "tcp"
+    cidr_blocks      = ["112.50.98.47/32"]
+    }
+
+  tags = {
+    Name = "sgroup"
+  }
+
+}
+
+terraform apply
+
+security group name that we created that is sgroup
+
+---------------------------------------------------------------------------------------
+
+suppose customer wants to change the cidr block then 
+we have to two methods:
+first we manually update:
+and second is using VARIABLES
+
+so now we using variables:
+
+terraform variables:
+   Allows us to centrally define the values that can be used in multiple terraform configuration blocks.
+
+
+variable ke liye nayi file bana sakte ya fir wahi file mein me bana sakte hai
+uske liye 
+
+
+touch variable.tf
+variable "cidr" {     #variable ka naam kuch bhi le sakte hai
+default = ["45.67.89.39/32"]         #yaha default rehna mandatory hai
+}
+
+
+resource "aws_security_group" "sg" {
+  name        = "sg"
+  
+  ingress {
+    from_port        = 443
+    to_port          = 443
+    protocol         = "tcp"
+    cidr_blocks      = var.cidr
+    }
+
+Automatically created security group
+
+variable file ka variable.tf yahi naam zaruari nhi hai...
+koi bhi naam le sakte hai...
+
+
+touch variable.tf
+variable "cidr" {     
+default = ["45.67.89.39/32","34.56.78.87/32"]         # yaha multiple ip de sakte hai.
+}
+------------------------------------------------------------------------------------------------
+
+yadi koi resource AWS console se delete kiya honga toh 
+woh pata kaise chalega ?
+woh pata terraform plan se pata chalega
+
+---------------------------------------------------------------------------------------------------------
+
+
+Approach for variable Assignment:
+
+Variable in terraform canbe assigned values in multiple ways.
+Some of these include:
+
+Enviorment Variable
+Command line flags
+from a file
+Variable default
+----------------------------------------------------------------------
+
+
+ye example hai variable default:
+
+touch variable.tf
+variable "cidr" {     
+default = ["45.67.89.39/32","34.56.78.87/32"]         
+}
+
+---------------------------------------------------------------------------------
+
+
+
+
+[root@ip-172-31-92-161 tf]# terraform plan -var=
+
+
+-------------------------------------------------------------------------------------------------
+
+ec2.tf uncomment karna hai 
+vim ec2.tf
+
+resource "aws_instance" "web" {
+  ami           = "ami-026b57f3c383c2eec"
+  instance_type = var.instancetype
+}
+
+
+
+
+variable.tf
+
+variable "instancetype" {}
+
+
+now 
+[root@ip-172-31-92-161 tf]#  terraform plan -var="instancetype=t2.large"  #yadi ye nhi bhi diya toh 
+jab tum terraform plan chaloge toh woh mangega
+ye ho gaya command line se dena
+
+ye condition tabhi kaam karegi jab hum variable.tf mein koi value mention nhi karenge...
+
+----------------------------------------------------------------------------------------------------
+
+variable.tf
+
+variable "instancetype" {
+    default = "t2.large"
+}
+
+[root@ip-172-31-92-161 tf]# terraform plan -var="instancetype=t2.micro"
+
+yaha dono bhi jagah mention kiya hai pr command line hum de rahe toh sabse jaayda priority 
+  command line ko denga...
+
+ --------------------------------------------------------------------------------------- 
+
+ abhi from a file se dekhte hai
+
+ 
+ vim variable.tf
+ variable "instancetype" {}  # yaha koi mention kiya hai
+
+abhi naya file create karenge 
+aur uska naam vim terraform.tfvars hi rahenga
+
+instancetype = "t2.nano" 
+ab terraform sabse pahile variable file ke pass jayenga fir terraform.tfvars ke pass jayenga 
+fir waha se value uthayenga.Waha jo mentio kiya honga wahi banayega.
+
+aur variable file me jo naam likha honga wai lena padega terraform vars file me 
+
+---------------------------------------------------------------------------------------------------
+
+Enviorment Variable
+command line variable set kar sakte hai
+[root@ip-172-31-92-161 tf]# export TF_VAR_instance_type="t2.large"
+
+------------------------------------------------------------------------------------------------------
+
+
+variable.tf                               terraform.tfvars
+
+variable "instance_name" {}             instance_name="john-123"
+
+----------------------------------------------------------------------------------------------
+
+
+
+
+
+ tags = {
+    Name = "HelloWorld"
+  }
+
+
+  variable.tf
+
+
+variable "instancetype" {
+default = "t2.micro"
+}
+
+  variable "instancename" {
+type = number
+}
+
+jaha hello world likha waha mujhe no chihiye isiliye type = number likha 
+
+vim ec2.tf
+
+ tags = {
+    Name = var.instancename
+  }
+
+then go to terraform.tfvars
+
+instancename = "123"
+
+
+--------------------------------------------------------------------------------------------------------
+
+
+Overview of data types:
+
+string 
+list 
+map 
+number
+
+---------------------------------------------------------------------------------------------------
+
+
+variable "cidr" {
+default = ["172.78.23.78/32"]
+}
+
+
+
+
+variable "list" {
+type = list
+default = ["m5.large", "t2.nano" , "t2.large"]
+
+}
+
+variable "instancename" {
+type = number
+}
+
+
+
+resource "aws_instance" "web" {
+  ami           = "ami-026b57f3c383c2eec"
+  instance_type = var.list[2]
+
+ tags = {
+    Name = var.instancename
+  }
+}
+
+
+simply terraform plan 
+me se list se sirf 
+
+yaha proper list datatypes ka use kiya gaya hai
+
+
+---------------------------------------------------------------------------------------
+
+map 
+
+variable "types" {
+type = map
+default = {
+us-east-1 = "t2.micro"
+us-east-2 = "t2.nano"
+ap-south-1 = "t2.large"
+}
+}
+
+resource "aws_instance" "web" {
+  ami           = "ami-026b57f3c383c2eec"
+  instance_type = var.types["us-east-1"]
+
+ tags = {
+    Name = var.instancename
+  }
+}
+
+yaha map ko call karega...
+
+
+--------------------------------------------------------------------------------------------
+
+
+
